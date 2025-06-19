@@ -2,6 +2,7 @@ package com.wpcreative.skycast;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -63,6 +64,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private LocationManager locationManager;
     private Handler mainHandler;
     private boolean isLocationRequestActive = false;
+    private SharedPreferences sharedPreferences;
+    private static final String PREFS_NAME = "SkycastPrefs";
+    private static final String PREF_DEFAULT_CITY = "default_city";
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +84,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         initializeServices();
         setupClickListeners();
         updateCurrentTime();
+        
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         
         // Try to get user's current location first, fallback to Jakarta if failed
         getCurrentLocationOnStartup();
@@ -222,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     
     private void showDefaultData() {
         // Show the data from the design as default
-        tvLocation.setText("Dajan Tangluk, ID");
+        tvLocation.setText("Denpasar, ID");
         tvTemperature.setText("29°");
         tvWeatherIcon.setText("🌧️");
         tvWeatherDescription.setText("Light Rain");
@@ -318,27 +324,22 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     }
                 }, null);
             } else {
-                // No location providers available, fallback to Jakarta
+                // No location providers available, fallback to user default
                 isLocationRequestActive = false;
-                Toast.makeText(this, "Location services disabled, showing Jakarta weather", Toast.LENGTH_SHORT).show();
-                loadWeatherData("Jakarta");
+                fallbackToDefaultCity("Location services disabled");
                 return;
             }
-            
-            // Set a timeout - if location is not found within 10 seconds, fallback to Jakarta
+            // Set a timeout - if location is not found within 10 seconds, fallback to user default
             mainHandler.postDelayed(() -> {
                 if (isLocationRequestActive) {
                     isLocationRequestActive = false;
-                    Toast.makeText(this, "Location timeout, showing Jakarta weather", Toast.LENGTH_SHORT).show();
-                    loadWeatherData("Jakarta");
+                    fallbackToDefaultCity("Location timeout");
                 }
             }, 10000); // 10 seconds timeout
-            
         } catch (SecurityException e) {
-            // Permission revoked during runtime, fallback to Jakarta
+            // Permission revoked during runtime, fallback to user default
             isLocationRequestActive = false;
-            Toast.makeText(this, "Unable to get location, showing Jakarta weather", Toast.LENGTH_SHORT).show();
-            loadWeatherData("Jakarta");
+            fallbackToDefaultCity("Unable to get location");
         }
     }
 
@@ -355,9 +356,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 // Permission granted, try to get location
                 requestLocationUpdate();
             } else {
-                // Permission denied, fallback to Jakarta
-                Toast.makeText(this, "Location permission denied, showing Jakarta weather", Toast.LENGTH_SHORT).show();
-                loadWeatherData("Jakarta");
+                // Permission denied, fallback to user default
+                fallbackToDefaultCity("Location permission denied");
             }
         }
     }
@@ -365,5 +365,36 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+    
+    private void promptForDefaultCity(String reason) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Set Default City");
+        builder.setMessage(reason + "\nPlease enter your preferred city:");
+        final EditText input = new EditText(this);
+        builder.setView(input);
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String city = input.getText().toString().trim();
+            if (!city.isEmpty()) {
+                sharedPreferences.edit().putString(PREF_DEFAULT_CITY, city).apply();
+                loadWeatherData(city);
+            }
+        });
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private String getDefaultCity() {
+        return sharedPreferences.getString(PREF_DEFAULT_CITY, "");
+    }
+
+    private void fallbackToDefaultCity(String reason) {
+        String city = getDefaultCity();
+        if (!city.isEmpty()) {
+            Toast.makeText(this, reason + ", showing " + city + " weather", Toast.LENGTH_SHORT).show();
+            loadWeatherData(city);
+        } else {
+            promptForDefaultCity(reason);
+        }
     }
 }
