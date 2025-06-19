@@ -62,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private WeatherApiClient weatherApiClient;
     private LocationManager locationManager;
     private Handler mainHandler;
+    private boolean isLocationRequestActive = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,14 +76,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        
-        initializeViews();
+          initializeViews();
         initializeServices();
         setupClickListeners();
         updateCurrentTime();
         
-        // Load default weather data for Jakarta
-        loadWeatherData("Jakarta");
+        // Try to get user's current location first, fallback to Jakarta if failed
+        getCurrentLocationOnStartup();
     }    private void initializeViews() {
         tvCurrentTime = findViewById(R.id.tvCurrentTime);
         tvLocation = findViewById(R.id.tvLocation);
@@ -273,20 +273,91 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
     
+    private void getCurrentLocationOnStartup() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
+                != PackageManager.PERMISSION_GRANTED) {
+            // Request permission first
+            ActivityCompat.requestPermissions(this, 
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Permission already granted, get location
+            requestLocationUpdate();
+        }
+    }
+      private void requestLocationUpdate() {
+        if (isLocationRequestActive) {
+            return; // Prevent multiple simultaneous location requests
+        }
+        
+        isLocationRequestActive = true;
+        
+        try {
+            // Show loading message
+            Toast.makeText(this, "Getting your location...", Toast.LENGTH_SHORT).show();
+            
+            // Try GPS first, then network provider as fallback
+            if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        if (isLocationRequestActive) {
+                            isLocationRequestActive = false;
+                            loadWeatherDataByLocation(location.getLatitude(), location.getLongitude());
+                        }
+                    }
+                }, null);
+            } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(@NonNull Location location) {
+                        if (isLocationRequestActive) {
+                            isLocationRequestActive = false;
+                            loadWeatherDataByLocation(location.getLatitude(), location.getLongitude());
+                        }
+                    }
+                }, null);
+            } else {
+                // No location providers available, fallback to Jakarta
+                isLocationRequestActive = false;
+                Toast.makeText(this, "Location services disabled, showing Jakarta weather", Toast.LENGTH_SHORT).show();
+                loadWeatherData("Jakarta");
+                return;
+            }
+            
+            // Set a timeout - if location is not found within 10 seconds, fallback to Jakarta
+            mainHandler.postDelayed(() -> {
+                if (isLocationRequestActive) {
+                    isLocationRequestActive = false;
+                    Toast.makeText(this, "Location timeout, showing Jakarta weather", Toast.LENGTH_SHORT).show();
+                    loadWeatherData("Jakarta");
+                }
+            }, 10000); // 10 seconds timeout
+            
+        } catch (SecurityException e) {
+            // Permission revoked during runtime, fallback to Jakarta
+            isLocationRequestActive = false;
+            Toast.makeText(this, "Unable to get location, showing Jakarta weather", Toast.LENGTH_SHORT).show();
+            loadWeatherData("Jakarta");
+        }
+    }
+
     @Override
     public void onLocationChanged(@NonNull Location location) {
         loadWeatherDataByLocation(location.getLatitude(), location.getLongitude());
     }
-    
-    @Override
+      @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, 
                                          @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation();
+                // Permission granted, try to get location
+                requestLocationUpdate();
             } else {
-                Toast.makeText(this, "Location permission denied", Toast.LENGTH_SHORT).show();
+                // Permission denied, fallback to Jakarta
+                Toast.makeText(this, "Location permission denied, showing Jakarta weather", Toast.LENGTH_SHORT).show();
+                loadWeatherData("Jakarta");
             }
         }
     }
