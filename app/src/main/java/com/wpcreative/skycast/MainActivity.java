@@ -32,7 +32,9 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.wpcreative.skycast.api.WeatherApiClient;
+import com.wpcreative.skycast.database.SettingsDbHelper;
 import com.wpcreative.skycast.model.WeatherResponse;
+import com.wpcreative.skycast.utils.TemperatureUtils;
 import com.wpcreative.skycast.utils.WeatherUtils;
 
 import java.text.SimpleDateFormat;
@@ -232,8 +234,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         tvLocation.setText(weather.name + ", " + weather.sys.country);
         
         // Update temperature
-        int temperature = (int) Math.round(weather.main.temp);
-        tvTemperature.setText(temperature + "°");
+        String tempUnit = getCurrentTemperatureUnit();
+        tvTemperature.setText(TemperatureUtils.formatTemperature(weather.main.temp, tempUnit));
         
         // Update weather icon and description
         if (weather.weather != null && !weather.weather.isEmpty()) {
@@ -245,10 +247,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         
         // Update feels like
-        int feelsLike = (int) Math.round(weather.main.feels_like);
-        tvFeelsLike.setText("Feels like " + feelsLike + "°");
-        tvFeelsLikeDetail.setText(feelsLike + "°C");
-        tvFeelsLikeValue.setText(feelsLike + "°C");
+        tvFeelsLike.setText("Feels like " + TemperatureUtils.formatTemperature(weather.main.feels_like, tempUnit));
+        tvFeelsLikeDetail.setText(TemperatureUtils.formatTemperature(weather.main.feels_like, tempUnit));
+        tvFeelsLikeValue.setText(TemperatureUtils.formatTemperature(weather.main.feels_like, tempUnit));
         
         // Update wind
         double windSpeedKmh = WeatherUtils.convertMsToKmh(weather.wind.speed);
@@ -268,16 +269,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     
     private void showDefaultData() {
         // Show the data from the design as default
+        String tempUnit = getCurrentTemperatureUnit();
         tvLocation.setText("Denpasar, ID");
-        tvTemperature.setText("29°");
+        tvTemperature.setText(TemperatureUtils.formatTemperature(29, tempUnit));
         tvWeatherIcon.setText("🌧️");
         tvWeatherDescription.setText("Light Rain");
-        tvFeelsLike.setText("Feels like 33°");
+        tvFeelsLike.setText("Feels like " + TemperatureUtils.formatTemperature(33, tempUnit));
         tvWindSpeed.setText("11 km/h");
         tvHumidity.setText("74%");
         tvVisibility.setText("10 km");
         tvPressure.setText("1011 mb");
-        tvFeelsLikeDetail.setText("33°C");        tvFeelsLikeValue.setText("33°C");
+        tvFeelsLikeDetail.setText(TemperatureUtils.formatTemperature(33, tempUnit));
+        tvFeelsLikeValue.setText(TemperatureUtils.formatTemperature(33, tempUnit));
         tvWindValue.setText("11 km/h");
     }
     
@@ -487,5 +490,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
         
         startActivity(intent);
+    }
+    
+    private String getCurrentTemperatureUnit() {
+        SettingsDbHelper dbHelper = new SettingsDbHelper(this);
+        String unit = dbHelper.getSetting(SettingsDbHelper.SETTING_TEMPERATURE_UNIT, TemperatureUtils.UNIT_METRIC);
+        dbHelper.close();
+        return unit;
     }
 }

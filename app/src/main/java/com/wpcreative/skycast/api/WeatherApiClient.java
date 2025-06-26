@@ -36,6 +36,13 @@ public class WeatherApiClient {
         // Return custom API key if available, otherwise use default
         return (customApiKey != null && !customApiKey.isEmpty()) ? customApiKey : DEFAULT_API_KEY;
     }
+    
+    private String getTemperatureUnit() {
+        SettingsDbHelper dbHelper = new SettingsDbHelper(context);
+        String unit = dbHelper.getSetting(SettingsDbHelper.SETTING_TEMPERATURE_UNIT, "metric"); // Default to Celsius
+        dbHelper.close();
+        return unit;
+    }
 
     public interface WeatherCallback {
         void onSuccess(WeatherResponse weather);
@@ -48,7 +55,7 @@ public class WeatherApiClient {
     }
     
     public void getCurrentWeather(String cityName, WeatherCallback callback) {
-        String url = BASE_URL + "?q=" + cityName + "&appid=" + getApiKey() + "&units=metric";
+        String url = BASE_URL + "?q=" + cityName + "&appid=" + getApiKey() + "&units=" + getTemperatureUnit();
         
         Request request = new Request.Builder()
                 .url(url)
@@ -78,7 +85,7 @@ public class WeatherApiClient {
     }
     
     public void getCurrentWeatherByCoords(double lat, double lon, WeatherCallback callback) {
-        String url = BASE_URL + "?lat=" + lat + "&lon=" + lon + "&appid=" + getApiKey() + "&units=metric";
+        String url = BASE_URL + "?lat=" + lat + "&lon=" + lon + "&appid=" + getApiKey() + "&units=" + getTemperatureUnit();
         
         Request request = new Request.Builder()
                 .url(url)
@@ -108,7 +115,7 @@ public class WeatherApiClient {
     }
     
     public void getForecast(String cityName, ForecastCallback callback) {
-        String url = FORECAST_URL + "?q=" + cityName + "&appid=" + getApiKey() + "&units=metric";
+        String url = FORECAST_URL + "?q=" + cityName + "&appid=" + getApiKey() + "&units=" + getTemperatureUnit();
         
         Request request = new Request.Builder()
                 .url(url)
@@ -138,7 +145,7 @@ public class WeatherApiClient {
     }
     
     public void getForecastByCoords(double lat, double lon, ForecastCallback callback) {
-        String url = FORECAST_URL + "?lat=" + lat + "&lon=" + lon + "&appid=" + getApiKey() + "&units=metric";
+        String url = FORECAST_URL + "?lat=" + lat + "&lon=" + lon + "&appid=" + getApiKey() + "&units=" + getTemperatureUnit();
         
         Request request = new Request.Builder()
                 .url(url)

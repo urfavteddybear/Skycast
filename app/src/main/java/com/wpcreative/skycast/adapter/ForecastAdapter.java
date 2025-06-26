@@ -1,5 +1,6 @@
 package com.wpcreative.skycast.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.wpcreative.skycast.R;
+import com.wpcreative.skycast.database.SettingsDbHelper;
 import com.wpcreative.skycast.model.ForecastResponse;
+import com.wpcreative.skycast.utils.TemperatureUtils;
 import com.wpcreative.skycast.utils.WeatherUtils;
 
 import java.text.SimpleDateFormat;
@@ -22,11 +25,23 @@ import java.util.Locale;
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastViewHolder> {
     
     private List<ForecastResponse.ForecastItem> forecastItems = new ArrayList<>();
+    private Context context;
+    
+    public ForecastAdapter(Context context) {
+        this.context = context;
+    }
     
     public void updateForecast(List<ForecastResponse.ForecastItem> newItems) {
         this.forecastItems.clear();
         this.forecastItems.addAll(newItems);
         notifyDataSetChanged();
+    }
+    
+    private String getCurrentTemperatureUnit() {
+        SettingsDbHelper dbHelper = new SettingsDbHelper(context);
+        String unit = dbHelper.getSetting(SettingsDbHelper.SETTING_TEMPERATURE_UNIT, TemperatureUtils.UNIT_METRIC);
+        dbHelper.close();
+        return unit;
     }
     
     @NonNull
@@ -48,7 +63,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         return forecastItems.size();
     }
     
-    static class ForecastViewHolder extends RecyclerView.ViewHolder {
+    class ForecastViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvForecastDate;
         private final TextView tvForecastTime;
         private final ImageView ivWeatherIcon;
@@ -79,7 +94,8 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                 tvForecastTime.setText(timeFormat.format(date));
                 
                 // Temperature
-                tvTemperature.setText(String.format(Locale.getDefault(), "%.0f°", item.main.temp));
+                String tempUnit = ForecastAdapter.this.getCurrentTemperatureUnit();
+                tvTemperature.setText(TemperatureUtils.formatTemperature(item.main.temp, tempUnit));
                 
                 // Weather description
                 if (item.weather != null && !item.weather.isEmpty()) {
@@ -100,9 +116,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                 
             } catch (Exception e) {
                 // Fallback values in case of any parsing errors
+                String tempUnit = ForecastAdapter.this.getCurrentTemperatureUnit();
                 tvForecastDate.setText("--");
                 tvForecastTime.setText("--");
-                tvTemperature.setText("--°");
+                tvTemperature.setText("--" + TemperatureUtils.getTemperatureSymbol(tempUnit));
                 tvWeatherDescription.setText("--");
                 tvHumidity.setText("--%");
                 tvWindSpeed.setText("-- km/h");
@@ -110,7 +127,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         }
     }
     
-    private static int getWeatherIconResource(String weatherCondition) {
+    private int getWeatherIconResource(String weatherCondition) {
         switch (weatherCondition) {
             case "clear":
                 return R.drawable.ic_weather_sunny;

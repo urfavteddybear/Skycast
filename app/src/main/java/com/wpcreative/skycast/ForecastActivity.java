@@ -76,7 +76,7 @@ public class ForecastActivity extends AppCompatActivity {
         btnBack = findViewById(R.id.btnBack);
         
         // Setup RecyclerView
-        forecastAdapter = new ForecastAdapter();
+        forecastAdapter = new ForecastAdapter(this);
         recyclerViewForecast.setLayoutManager(new LinearLayoutManager(this));
         recyclerViewForecast.setAdapter(forecastAdapter);
     }

@@ -289,6 +289,93 @@
 
             </androidx.cardview.widget.CardView>
 
+            <!-- Temperature Unit Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Temperature Unit"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="32dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose your preferred temperature unit"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Temperature Unit Selection Card -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="@color/card_background"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/card_border"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Temperature Unit"
+                        android:textColor="@color/text_primary"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Radio Group for Temperature Units -->
+                    <RadioGroup
+                        android:id="@+id/radioGroupTemperatureUnit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/radioCelsius"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="Celsius (°C)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="8dp"
+                            android:buttonTint="@color/light_blue" />
+
+                        <RadioButton
+                            android:id="@+id/radioFahrenheit"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="Fahrenheit (°F)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:layout_marginBottom="8dp"
+                            android:buttonTint="@color/light_blue" />
+
+                        <RadioButton
+                            android:id="@+id/radioKelvin"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:text="Kelvin (K)"
+                            android:textColor="@color/text_primary"
+                            android:textSize="16sp"
+                            android:buttonTint="@color/light_blue" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
         </LinearLayout>
 
     </ScrollView>

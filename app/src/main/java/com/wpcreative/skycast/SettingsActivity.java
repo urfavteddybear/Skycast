@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +22,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.wpcreative.skycast.database.SettingsDbHelper;
+import com.wpcreative.skycast.utils.TemperatureUtils;
 
 public class SettingsActivity extends AppCompatActivity {
     
@@ -32,6 +35,12 @@ public class SettingsActivity extends AppCompatActivity {
     private Button btnRemoveApiKey;
     private CardView cardApiKeyInfo;
     private LinearLayout layoutNoApiKey;
+    
+    // Temperature Unit Components
+    private RadioGroup radioGroupTemperatureUnit;
+    private RadioButton radioCelsius;
+    private RadioButton radioFahrenheit;
+    private RadioButton radioKelvin;
     
     // Database
     private SettingsDbHelper dbHelper;
@@ -64,6 +73,12 @@ public class SettingsActivity extends AppCompatActivity {
         btnRemoveApiKey = findViewById(R.id.btnRemoveApiKey);
         cardApiKeyInfo = findViewById(R.id.cardApiKeyInfo);
         layoutNoApiKey = findViewById(R.id.layoutNoApiKey);
+        
+        // Temperature unit components
+        radioGroupTemperatureUnit = findViewById(R.id.radioGroupTemperatureUnit);
+        radioCelsius = findViewById(R.id.radioCelsius);
+        radioFahrenheit = findViewById(R.id.radioFahrenheit);
+        radioKelvin = findViewById(R.id.radioKelvin);
     }
     
     private void initializeDatabase() {
@@ -75,6 +90,9 @@ public class SettingsActivity extends AppCompatActivity {
         btnAddApiKey.setOnClickListener(v -> showAddApiKeyDialog());
         btnEditApiKey.setOnClickListener(v -> showEditApiKeyDialog());
         btnRemoveApiKey.setOnClickListener(v -> showRemoveApiKeyConfirmation());
+        
+        // Setup temperature unit listener
+        setupTemperatureUnitListener();
     }
     
     private void updateUI() {
@@ -95,6 +113,53 @@ public class SettingsActivity extends AppCompatActivity {
             cardApiKeyInfo.setVisibility(View.GONE);
             layoutNoApiKey.setVisibility(View.VISIBLE);
         }
+        
+        // Update temperature unit selection
+        updateTemperatureUnitSelection();
+    }
+    
+    private void updateTemperatureUnitSelection() {
+        String currentUnit = dbHelper.getSetting(SettingsDbHelper.SETTING_TEMPERATURE_UNIT, TemperatureUtils.UNIT_METRIC);
+        
+        // Temporarily disable the listener to avoid triggering it while setting the selection
+        radioGroupTemperatureUnit.setOnCheckedChangeListener(null);
+        
+        switch (currentUnit) {
+            case TemperatureUtils.UNIT_METRIC:
+                radioCelsius.setChecked(true);
+                break;
+            case TemperatureUtils.UNIT_IMPERIAL:
+                radioFahrenheit.setChecked(true);
+                break;
+            case TemperatureUtils.UNIT_KELVIN:
+                radioKelvin.setChecked(true);
+                break;
+            default:
+                radioCelsius.setChecked(true); // Default to Celsius
+                break;
+        }
+        
+        // Re-enable the listener
+        setupTemperatureUnitListener();
+    }
+    
+    private void setupTemperatureUnitListener() {
+        radioGroupTemperatureUnit.setOnCheckedChangeListener((group, checkedId) -> {
+            String selectedUnit;
+            if (checkedId == R.id.radioCelsius) {
+                selectedUnit = TemperatureUtils.UNIT_METRIC;
+            } else if (checkedId == R.id.radioFahrenheit) {
+                selectedUnit = TemperatureUtils.UNIT_IMPERIAL;
+            } else if (checkedId == R.id.radioKelvin) {
+                selectedUnit = TemperatureUtils.UNIT_KELVIN;
+            } else {
+                return; // Invalid selection
+            }
+            
+            // Save the selected temperature unit
+            dbHelper.saveSetting(SettingsDbHelper.SETTING_TEMPERATURE_UNIT, selectedUnit);
+            Toast.makeText(this, "Temperature unit updated", Toast.LENGTH_SHORT).show();
+        });
     }
     
     private String maskApiKey(String apiKey) {
