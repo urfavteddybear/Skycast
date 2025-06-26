@@ -125,17 +125,22 @@
         app:layout_constraintTop_toBottomOf="@id/searchContainer"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Scrollable Content Area -->
-    <ScrollView
+    <!-- Scrollable Content Area with Pull to Refresh -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginHorizontal="20dp"
         android:layout_marginTop="12dp"
-        android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/tvCurrentTime"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -640,6 +645,8 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </ScrollView>
+        </ScrollView>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

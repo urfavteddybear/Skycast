@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
+    implementation(libs.swiperefreshlayout)
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.glide)

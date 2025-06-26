@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.wpcreative.skycast.api.WeatherApiClient;
 import com.wpcreative.skycast.model.WeatherResponse;
@@ -40,6 +41,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity implements LocationListener {
     
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;    // UI Components
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TextView tvCurrentTime;
     private TextView tvLocation;
     private TextView tvTemperature;
@@ -90,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         // Try to get user's current location first, fallback to Jakarta if failed
         getCurrentLocationOnStartup();
     }    private void initializeViews() {
+        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         tvCurrentTime = findViewById(R.id.tvCurrentTime);
         tvLocation = findViewById(R.id.tvLocation);
         tvTemperature = findViewById(R.id.tvTemperature);
@@ -115,6 +118,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mainHandler = new Handler(Looper.getMainLooper());
     }    private void setupClickListeners() {
+        // Setup pull to refresh
+        swipeRefreshLayout.setOnRefreshListener(this::refreshWeatherData);
+        swipeRefreshLayout.setColorSchemeResources(
+            R.color.light_blue,
+            R.color.accent_orange,
+            R.color.light_blue
+        );
+        
         btnLocation.setOnClickListener(v -> getCurrentLocation());
         btnSettings.setOnClickListener(v -> showSettingsDialog());
         btnClearSearch.setOnClickListener(v -> clearSearch());
@@ -154,7 +165,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         weatherApiClient.getCurrentWeather(cityName, new WeatherApiClient.WeatherCallback() {
             @Override
             public void onSuccess(WeatherResponse weather) {
-                mainHandler.post(() -> updateUI(weather));
+                mainHandler.post(() -> {
+                    updateUI(weather);
+                    stopRefreshing();
+                });
             }
             
             @Override
@@ -163,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                     Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
                     // Show default/mock data if API fails
                     showDefaultData();
+                    stopRefreshing();
                 });
             }
         });
@@ -172,7 +187,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         weatherApiClient.getCurrentWeatherByCoords(lat, lon, new WeatherApiClient.WeatherCallback() {
             @Override
             public void onSuccess(WeatherResponse weather) {
-                mainHandler.post(() -> updateUI(weather));
+                mainHandler.post(() -> {
+                    updateUI(weather);
+                    stopRefreshing();
+                });
             }
             
             @Override
@@ -180,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
                 mainHandler.post(() -> {
                     Toast.makeText(MainActivity.this, "Error: " + error, Toast.LENGTH_SHORT).show();
                     showDefaultData();
+                    stopRefreshing();
                 });
             }
         });
@@ -395,6 +414,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
             loadWeatherData(city);
         } else {
             promptForDefaultCity(reason);
+        }
+    }
+
+    private void refreshWeatherData() {
+        // Get current location text to determine what to refresh
+        String currentLocation = tvLocation.getText().toString();
+        
+        if (currentLocation.isEmpty() || currentLocation.equals("Select Location")) {
+            // If no location is set, try to get current location
+            getCurrentLocation();
+        } else {
+            // Refresh weather for current location
+            loadWeatherData(currentLocation);
+        }
+    }
+
+    private void stopRefreshing() {
+        if (swipeRefreshLayout != null) {
+            swipeRefreshLayout.setRefreshing(false);
         }
     }
 }
