@@ -1,6 +1,7 @@
 package com.wpcreative.skycast;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private TextView tvWindValue;
     
     private ImageView btnLocation;
+    private ImageView btnForecast;
     private ImageView btnSettings;
     private ImageView btnClearSearch;
     private EditText etSearchCity;
@@ -69,6 +71,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "SkycastPrefs";
     private static final String PREF_DEFAULT_CITY = "default_city";
+    
+    // Store last known coordinates for forecast
+    private double lastKnownLatitude = 0;
+    private double lastKnownLongitude = 0;
+    private boolean hasValidCoordinates = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         tvWindValue = findViewById(R.id.tvWindValue);
         
         btnLocation = findViewById(R.id.btnLocation);
+        btnForecast = findViewById(R.id.btnForecast);
         btnSettings = findViewById(R.id.btnSettings);
         btnClearSearch = findViewById(R.id.btnClearSearch);
         etSearchCity = findViewById(R.id.etSearchCity);
@@ -127,6 +135,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         );
         
         btnLocation.setOnClickListener(v -> getCurrentLocation());
+        btnForecast.setOnClickListener(v -> openForecast());
         btnSettings.setOnClickListener(v -> showSettingsDialog());
         btnClearSearch.setOnClickListener(v -> clearSearch());
         
@@ -364,6 +373,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
 
     @Override
     public void onLocationChanged(@NonNull Location location) {
+        // Store coordinates for forecast
+        lastKnownLatitude = location.getLatitude();
+        lastKnownLongitude = location.getLongitude();
+        hasValidCoordinates = true;
+        
         loadWeatherDataByLocation(location.getLatitude(), location.getLongitude());
     }
       @Override
@@ -434,5 +448,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         if (swipeRefreshLayout != null) {
             swipeRefreshLayout.setRefreshing(false);
         }
+    }
+
+    private void openForecast() {
+        Intent intent = new Intent(this, ForecastActivity.class);
+        
+        // Pass current city name if available
+        String currentLocation = tvLocation.getText().toString();
+        if (!currentLocation.isEmpty() && !currentLocation.equals("Loading...")) {
+            intent.putExtra("city_name", currentLocation);
+        }
+        
+        // Pass coordinates if we have them
+        if (hasValidCoordinates) {
+            intent.putExtra("latitude", lastKnownLatitude);
+            intent.putExtra("longitude", lastKnownLongitude);
+            intent.putExtra("use_coordinates", true);
+        }
+        
+        startActivity(intent);
     }
 }

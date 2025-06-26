@@ -1,6 +1,7 @@
 package com.wpcreative.skycast.api;
 
 import com.google.gson.Gson;
+import com.wpcreative.skycast.model.ForecastResponse;
 import com.wpcreative.skycast.model.WeatherResponse;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -12,6 +13,7 @@ import java.io.IOException;
 
 public class WeatherApiClient {
     private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/weather";
+    private static final String FORECAST_URL = "https://api.openweathermap.org/data/2.5/forecast";
     private static final String API_KEY = "redacted"; // Replace with your actual API key
     
     private final OkHttpClient client;
@@ -24,6 +26,11 @@ public class WeatherApiClient {
     
     public interface WeatherCallback {
         void onSuccess(WeatherResponse weather);
+        void onError(String error);
+    }
+    
+    public interface ForecastCallback {
+        void onSuccess(ForecastResponse forecast);
         void onError(String error);
     }
     
@@ -77,6 +84,66 @@ public class WeatherApiClient {
                     try {
                         WeatherResponse weatherResponse = gson.fromJson(responseBody, WeatherResponse.class);
                         callback.onSuccess(weatherResponse);
+                    } catch (Exception e) {
+                        callback.onError("Parse error: " + e.getMessage());
+                    }
+                } else {
+                    callback.onError("API error: " + response.code());
+                }
+            }
+        });
+    }
+    
+    public void getForecast(String cityName, ForecastCallback callback) {
+        String url = FORECAST_URL + "?q=" + cityName + "&appid=" + API_KEY + "&units=metric";
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError("Network error: " + e.getMessage());
+            }
+            
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        ForecastResponse forecastResponse = gson.fromJson(responseBody, ForecastResponse.class);
+                        callback.onSuccess(forecastResponse);
+                    } catch (Exception e) {
+                        callback.onError("Parse error: " + e.getMessage());
+                    }
+                } else {
+                    callback.onError("API error: " + response.code());
+                }
+            }
+        });
+    }
+    
+    public void getForecastByCoords(double lat, double lon, ForecastCallback callback) {
+        String url = FORECAST_URL + "?lat=" + lat + "&lon=" + lon + "&appid=" + API_KEY + "&units=metric";
+        
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                callback.onError("Network error: " + e.getMessage());
+            }
+            
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    String responseBody = response.body().string();
+                    try {
+                        ForecastResponse forecastResponse = gson.fromJson(responseBody, ForecastResponse.class);
+                        callback.onSuccess(forecastResponse);
                     } catch (Exception e) {
                         callback.onError("Parse error: " + e.getMessage());
                     }
