@@ -82,7 +82,7 @@ public class ForecastActivity extends AppCompatActivity {
     }
     
     private void initializeServices() {
-        weatherApiClient = new WeatherApiClient();
+        weatherApiClient = new WeatherApiClient(this);
         mainHandler = new Handler(Looper.getMainLooper());
     }
     

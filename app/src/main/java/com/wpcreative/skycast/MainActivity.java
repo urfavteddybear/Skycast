@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
     
     private void initializeServices() {
-        weatherApiClient = new WeatherApiClient();
+        weatherApiClient = new WeatherApiClient(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         mainHandler = new Handler(Looper.getMainLooper());
     }    private void setupClickListeners() {
@@ -299,11 +299,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     }
     
     private void showSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Settings");
-        builder.setMessage("Weather App Settings\n\nNote: To use real weather data, please add your OpenWeatherMap API key in WeatherApiClient.java");
-        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-        builder.show();
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
     }
     
     private void clearSearch() {
