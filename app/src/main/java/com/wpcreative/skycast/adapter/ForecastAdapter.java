@@ -86,12 +86,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                     String description = WeatherUtils.capitalizeFirstLetter(item.weather.get(0).description);
                     tvWeatherDescription.setText(description);
                     
-                    // Weather icon - use the icon code from the weather object
-                    String iconCode = item.weather.get(0).icon;
-                    String iconText = WeatherUtils.getWeatherIcon(iconCode);
-                    // Since we don't have ImageView properly set up, let's use a text-based approach
-                    // or we can create a simple mapping. For now, let's set a placeholder
-                    ivWeatherIcon.setImageResource(android.R.drawable.ic_menu_day);
+                    // Weather icon - use custom weather icons based on condition
+                    String weatherMain = item.weather.get(0).main.toLowerCase();
+                    int iconRes = getWeatherIconResource(weatherMain);
+                    ivWeatherIcon.setImageResource(iconRes);
                 }
                 
                 // Humidity
@@ -109,6 +107,28 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                 tvHumidity.setText("--%");
                 tvWindSpeed.setText("-- km/h");
             }
+        }
+    }
+    
+    private static int getWeatherIconResource(String weatherCondition) {
+        switch (weatherCondition) {
+            case "clear":
+                return R.drawable.ic_weather_sunny;
+            case "clouds":
+                return R.drawable.ic_weather_cloudy;
+            case "rain":
+            case "drizzle":
+                return R.drawable.ic_weather_rainy;
+            case "thunderstorm":
+                return R.drawable.ic_weather_rainy; // Could create a thunderstorm icon
+            case "snow":
+                return R.drawable.ic_weather_cloudy; // Could create a snow icon
+            case "mist":
+            case "fog":
+            case "haze":
+                return R.drawable.ic_weather_cloudy;
+            default:
+                return R.drawable.ic_weather_sunny; // Default fallback
         }
     }
 }

@@ -92,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
           initializeViews();
         initializeServices();
         setupClickListeners();
+        setupKeyboardHiding();
         updateCurrentTime();
         
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -164,6 +165,17 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         });
     }
     
+    private void setupKeyboardHiding() {
+        // Hide keyboard when tapping outside the search field
+        findViewById(R.id.main).setOnTouchListener((v, event) -> {
+            if (getCurrentFocus() != null && getCurrentFocus() == etSearchCity) {
+                hideKeyboard();
+                etSearchCity.clearFocus();
+            }
+            return false;
+        });
+    }
+
     private void updateCurrentTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm, EEE MMM dd", Locale.getDefault());
         String currentTime = sdf.format(new Date());
@@ -296,10 +308,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     
     private void clearSearch() {
         etSearchCity.setText("");
+        hideKeyboard();
     }    
     private void performSearch() {
         String cityName = etSearchCity.getText().toString().trim();
         if (!cityName.isEmpty()) {
+            // Hide keyboard
+            hideKeyboard();
+            
             loadWeatherData(cityName);
             etSearchCity.setText("");
         } else {
@@ -307,6 +323,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         }
     }
     
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+    }
+
     private void getCurrentLocationOnStartup() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) 
                 != PackageManager.PERMISSION_GRANTED) {
