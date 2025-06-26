@@ -21,6 +21,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.wpcreative.skycast.database.SettingsDbHelper;
 import com.wpcreative.skycast.utils.TemperatureUtils;
 
@@ -28,6 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
     
     // UI Components
     private ImageView btnBack;
+    private ImageView btnApiInfo;
     private TextView tvCurrentApiKey;
     private TextView tvApiKeyName;
     private Button btnAddApiKey;
@@ -66,6 +68,7 @@ public class SettingsActivity extends AppCompatActivity {
     
     private void initializeViews() {
         btnBack = findViewById(R.id.btnBack);
+        btnApiInfo = findViewById(R.id.btnApiInfo);
         tvCurrentApiKey = findViewById(R.id.tvCurrentApiKey);
         tvApiKeyName = findViewById(R.id.tvApiKeyName);
         btnAddApiKey = findViewById(R.id.btnAddApiKey);
@@ -87,6 +90,7 @@ public class SettingsActivity extends AppCompatActivity {
     
     private void setupClickListeners() {
         btnBack.setOnClickListener(v -> finish());
+        btnApiInfo.setOnClickListener(v -> showApiInfoDialog());
         btnAddApiKey.setOnClickListener(v -> showAddApiKeyDialog());
         btnEditApiKey.setOnClickListener(v -> showEditApiKeyDialog());
         btnRemoveApiKey.setOnClickListener(v -> showRemoveApiKeyConfirmation());
@@ -173,30 +177,30 @@ public class SettingsActivity extends AppCompatActivity {
     }
     
     private void showAddApiKeyDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Add OpenWeatherMap API Key");
-        builder.setMessage("Enter your OpenWeatherMap API key to use your own quota:");
+        // Inflate custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_add_api_key, null);
         
-        // Create input layout
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
+        // Get references to input fields
+        TextInputEditText etKeyName = dialogView.findViewById(R.id.etKeyName);
+        TextInputEditText etApiKey = dialogView.findViewById(R.id.etApiKey);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnSave = dialogView.findViewById(R.id.btnSave);
         
-        // API Key Name input
-        EditText etKeyName = new EditText(this);
-        etKeyName.setHint("API Key Name (optional)");
-        etKeyName.setText("My API Key");
-        layout.addView(etKeyName);
+        // Create dialog with custom theme
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
         
-        // API Key input
-        EditText etApiKey = new EditText(this);
-        etApiKey.setHint("API Key (32 characters)");
-        etApiKey.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        layout.addView(etApiKey);
+        // Set transparent background to avoid white corners
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
         
-        builder.setView(layout);
+        // Set button listeners
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
         
-        builder.setPositiveButton("Save", (dialog, which) -> {
+        btnSave.setOnClickListener(v -> {
             String keyName = etKeyName.getText().toString().trim();
             String apiKey = etApiKey.getText().toString().trim();
             
@@ -220,11 +224,9 @@ public class SettingsActivity extends AppCompatActivity {
             
             Toast.makeText(this, "API key saved successfully", Toast.LENGTH_SHORT).show();
             updateUI();
+            dialog.dismiss();
         });
         
-        builder.setNegativeButton("Cancel", null);
-        
-        AlertDialog dialog = builder.create();
         dialog.show();
     }
     
@@ -232,31 +234,34 @@ public class SettingsActivity extends AppCompatActivity {
         String currentApiKey = dbHelper.getSetting(SettingsDbHelper.SETTING_API_KEY, "");
         String currentKeyName = dbHelper.getSetting(SettingsDbHelper.SETTING_API_KEY_NAME, "My API Key");
         
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Edit API Key");
-        builder.setMessage("Update your OpenWeatherMap API key:");
+        // Inflate custom dialog layout
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_edit_api_key, null);
         
-        // Create input layout
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 20, 50, 20);
+        // Get references to input fields
+        TextInputEditText etKeyName = dialogView.findViewById(R.id.etKeyName);
+        TextInputEditText etApiKey = dialogView.findViewById(R.id.etApiKey);
+        Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        Button btnUpdate = dialogView.findViewById(R.id.btnUpdate);
         
-        // API Key Name input
-        EditText etKeyName = new EditText(this);
-        etKeyName.setHint("API Key Name");
+        // Pre-fill with current values
         etKeyName.setText(currentKeyName);
-        layout.addView(etKeyName);
-        
-        // API Key input
-        EditText etApiKey = new EditText(this);
-        etApiKey.setHint("API Key (32 characters)");
         etApiKey.setText(currentApiKey);
-        etApiKey.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        layout.addView(etApiKey);
         
-        builder.setView(layout);
+        // Create dialog with custom theme
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme)
+                .setView(dialogView)
+                .setCancelable(true)
+                .create();
         
-        builder.setPositiveButton("Update", (dialog, which) -> {
+        // Set transparent background to avoid white corners
+        if (dialog.getWindow() != null) {
+            dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+        
+        // Set button listeners
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+        
+        btnUpdate.setOnClickListener(v -> {
             String keyName = etKeyName.getText().toString().trim();
             String apiKey = etApiKey.getText().toString().trim();
             
@@ -280,16 +285,14 @@ public class SettingsActivity extends AppCompatActivity {
             
             Toast.makeText(this, "API key updated successfully", Toast.LENGTH_SHORT).show();
             updateUI();
+            dialog.dismiss();
         });
         
-        builder.setNegativeButton("Cancel", null);
-        
-        AlertDialog dialog = builder.create();
         dialog.show();
     }
     
     private void showRemoveApiKeyConfirmation() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.StandardDialogTheme);
         builder.setTitle("Remove API Key");
         builder.setMessage("Are you sure you want to remove your API key? The app will use the default API key.");
         builder.setIcon(android.R.drawable.ic_dialog_alert);
@@ -303,6 +306,20 @@ public class SettingsActivity extends AppCompatActivity {
         });
         
         builder.setNegativeButton("Cancel", null);
+        
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+    
+    private void showApiInfoDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.StandardDialogTheme);
+        builder.setTitle("About API Keys");
+        builder.setMessage("• Get your free API key at openweathermap.org\n" +
+                          "• Free tier: 1,000 calls/day\n" +
+                          "• Your API key is stored securely on your device\n" +
+                          "• Replace the default key to avoid rate limits");
+        builder.setPositiveButton("Got it", null);
+        builder.setIcon(R.drawable.ic_info);
         
         AlertDialog dialog = builder.create();
         dialog.show();

@@ -7,4 +7,34 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
     </style>
+    
+    <!-- Custom Dialog Theme for Custom Layout Dialogs -->
+    <style name="CustomDialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:colorBackground">@color/card_background</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorSurfaceVariant">@color/card_background</item>
+    </style>
+    
+    <!-- Standard Dialog Theme for Simple Dialogs -->
+    <style name="StandardDialogTheme" parent="Theme.Material3.DayNight.Dialog">
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:colorBackground">@color/card_background</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="colorOnSurfaceVariant">@color/text_secondary</item>
+        <item name="colorPrimary">@color/light_blue</item>
+        <item name="colorSecondary">@color/accent_orange</item>
+    </style>
 </resources>

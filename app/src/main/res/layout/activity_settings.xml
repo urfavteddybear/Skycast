@@ -61,14 +61,33 @@
             android:padding="20dp">
 
             <!-- API Key Section -->
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="API Configuration"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="API Configuration"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:id="@+id/btnApiInfo"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_info"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"
+                    android:clickable="true"
+                    android:focusable="true" />
+
+            </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -237,57 +256,6 @@
                     style="?android:attr/borderlessButtonStyle" />
 
             </LinearLayout>
-
-            <!-- Info Section -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                app:cardBackgroundColor="@color/card_background"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="20dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:layout_marginBottom="12dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="ℹ️"
-                            android:textSize="20sp"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="About API Keys"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="• Get your free API key at openweathermap.org\n• Free tier: 1,000 calls/day\n• Your API key is stored securely on your device\n• Replace the default key to avoid rate limits"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp"
-                        android:lineSpacingExtra="4dp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
 
             <!-- Temperature Unit Section -->
             <TextView
