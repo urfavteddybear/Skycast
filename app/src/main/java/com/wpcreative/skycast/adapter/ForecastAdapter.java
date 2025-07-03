@@ -4,7 +4,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -66,7 +65,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     class ForecastViewHolder extends RecyclerView.ViewHolder {
         private final TextView tvForecastDate;
         private final TextView tvForecastTime;
-        private final ImageView ivWeatherIcon;
+        private final TextView tvWeatherIcon;  // Changed from ImageView to TextView
         private final TextView tvTemperature;
         private final TextView tvWeatherDescription;
         private final TextView tvHumidity;
@@ -76,7 +75,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             super(itemView);
             tvForecastDate = itemView.findViewById(R.id.tvForecastDate);
             tvForecastTime = itemView.findViewById(R.id.tvForecastTime);
-            ivWeatherIcon = itemView.findViewById(R.id.ivWeatherIcon);
+            tvWeatherIcon = itemView.findViewById(R.id.tvWeatherIcon);  // Changed from ivWeatherIcon
             tvTemperature = itemView.findViewById(R.id.tvTemperature);
             tvWeatherDescription = itemView.findViewById(R.id.tvWeatherDescription);
             tvHumidity = itemView.findViewById(R.id.tvHumidity);
@@ -102,10 +101,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                     String description = WeatherUtils.capitalizeFirstLetter(item.weather.get(0).description);
                     tvWeatherDescription.setText(description);
                     
-                    // Weather icon - use custom weather icons based on condition
-                    String weatherMain = item.weather.get(0).main.toLowerCase();
-                    int iconRes = getWeatherIconResource(weatherMain);
-                    ivWeatherIcon.setImageResource(iconRes);
+                    // Weather icon - use emoji from WeatherUtils (consistent with MainActivity)
+                    String iconCode = item.weather.get(0).icon;
+                    String weatherEmoji = WeatherUtils.getWeatherIcon(iconCode);
+                    tvWeatherIcon.setText(weatherEmoji);
                 }
                 
                 // Humidity
@@ -124,28 +123,6 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
                 tvHumidity.setText("--%");
                 tvWindSpeed.setText("-- km/h");
             }
-        }
-    }
-    
-    private int getWeatherIconResource(String weatherCondition) {
-        switch (weatherCondition) {
-            case "clear":
-                return R.drawable.ic_weather_sunny;
-            case "clouds":
-                return R.drawable.ic_weather_cloudy;
-            case "rain":
-            case "drizzle":
-                return R.drawable.ic_weather_rainy;
-            case "thunderstorm":
-                return R.drawable.ic_weather_rainy; // Could create a thunderstorm icon
-            case "snow":
-                return R.drawable.ic_weather_cloudy; // Could create a snow icon
-            case "mist":
-            case "fog":
-            case "haze":
-                return R.drawable.ic_weather_cloudy;
-            default:
-                return R.drawable.ic_weather_sunny; // Default fallback
         }
     }
 }

@@ -1,4 +1,94 @@
-<?xml version="1.0" encoding="utf-8"?><androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"    xmlns:app="http://schemas.android.com/apk/res-auto"    xmlns:tools="http://schemas.android.com/tools"    android:layout_width="match_parent"    android:layout_height="wrap_content"    android:layout_marginBottom="8dp"    app:cardBackgroundColor="@color/card_background"    app:cardCornerRadius="16dp"    app:cardElevation="4dp">    <LinearLayout        android:layout_width="match_parent"        android:layout_height="wrap_content"        android:orientation="horizontal"        android:gravity="center_vertical"        android:padding="16dp">        <!-- Date and Time -->        <LinearLayout            android:layout_width="0dp"            android:layout_height="wrap_content"            android:layout_weight="1"            android:orientation="vertical">            <TextView                android:id="@+id/tvForecastDate"                android:layout_width="wrap_content"                android:layout_height="wrap_content"                android:text="Mon, Jun 26"                android:textColor="@color/text_primary"                android:textSize="16sp"                android:textStyle="bold"                tools:text="Mon, Jun 26" />            <TextView                android:id="@+id/tvForecastTime"                android:layout_width="wrap_content"                android:layout_height="wrap_content"                android:layout_marginTop="2dp"                android:text="15:00"                android:textColor="@color/text_secondary"                android:textSize="14sp"                tools:text="15:00" />        </LinearLayout>        <!-- Weather Icon -->        <ImageView            android:id="@+id/ivWeatherIcon"            android:layout_width="48dp"            android:layout_height="48dp"            android:layout_marginHorizontal="16dp"            android:scaleType="centerInside"            android:src="@android:drawable/ic_dialog_info"            tools:src="@android:drawable/ic_dialog_info" />        <!-- Weather Info -->        <LinearLayout            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:orientation="vertical"            android:gravity="center_horizontal"            android:minWidth="80dp">            <TextView                android:id="@+id/tvTemperature"                android:layout_width="wrap_content"                android:layout_height="wrap_content"                android:text="24°"                android:textColor="@color/text_primary"                android:textSize="20sp"                android:textStyle="bold"                tools:text="24°" />            <TextView                android:id="@+id/tvWeatherDescription"                android:layout_width="wrap_content"                android:layout_height="wrap_content"                android:layout_marginTop="2dp"                android:text="Partly Cloudy"                android:textColor="@color/text_secondary"                android:textSize="12sp"                android:gravity="center"                android:maxLines="2"                android:ellipsize="end"                tools:text="Partly Cloudy" />        </LinearLayout>
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/card_background"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="16dp">
+
+        <!-- Date and Time -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvForecastDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mon, Jun 26"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                tools:text="Mon, Jun 26" />
+
+            <TextView
+                android:id="@+id/tvForecastTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="15:00"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp"
+                tools:text="15:00" />
+
+        </LinearLayout>
+
+        <!-- Weather Icon (Changed from ImageView to TextView for emoji) -->
+        <TextView
+            android:id="@+id/tvWeatherIcon"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="16dp"
+            android:gravity="center"
+            android:text="🌤️"
+            android:textSize="32sp"
+            tools:text="🌤️" />
+
+        <!-- Weather Info -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:minWidth="80dp">
+
+            <TextView
+                android:id="@+id/tvTemperature"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="24°"
+                android:textColor="@color/text_primary"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                tools:text="24°" />
+
+            <TextView
+                android:id="@+id/tvWeatherDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Partly Cloudy"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:ellipsize="end"
+                tools:text="Partly Cloudy" />
+
+        </LinearLayout>
+
         <!-- Additional Info -->
         <LinearLayout
             android:layout_width="wrap_content"
